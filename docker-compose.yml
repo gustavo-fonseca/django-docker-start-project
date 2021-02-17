@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+
+    backend:
+        container_name: backend_base
+        build:
+            context: .
+            args:
+                - ENV=${ENV}
+                - TIMEZONE=${TIMEZONE}
+        ports:
+            - 8000:8000
+        volumes:
+            - .:/app
+        depends_on:
+            - database
+
+    database:
+        container_name: database_base
+        image: postgres:12
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_DB: ${DATABASE_NAME}
+            POSTGRES_USER: ${DATABASE_USER}
+            POSTGRES_PASSWORD: ${DATABASE_PASS}
+            TZ: ${TIMEZONE}
+            PGTZ: ${TIMEZONE}
+        volumes:
+            - database_data:/var/lib/postgresql/data
+
+volumes:
+    database_data:
