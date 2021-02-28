@@ -49,8 +49,9 @@ startapp:
 
 # Init project
 
-init: up
+init:
 	cp .env-template .env
+	docker-compose up -d
 	@read -p "Enter project name: " new_project_name; \
 	mv ./$(PROJECT_NAME) ./$$new_project_name; \
 	docker exec $(MAIN_CONTAINER) sed -i "s/$(PROJECT_NAME).settings/$$new_project_name.settings/g" /app/$$new_project_name/asgi.py ; \
@@ -61,8 +62,11 @@ init: up
 	docker exec $(MAIN_CONTAINER) sed -i "s/PROJECT_NAME = $(PROJECT_NAME)/PROJECT_NAME = $$new_project_name/g" /app/Makefile ; \
 	docker exec $(MAIN_CONTAINER) sed -i "s/MAIN_CONTAINER = backend_$(PROJECT_NAME)/MAIN_CONTAINER = backend_$$new_project_name/g" /app/Makefile ; \
 	docker exec $(MAIN_CONTAINER) sed -i "s/backend_$(PROJECT_NAME)/backend_$$new_project_name/g" /app/docker-compose.yml ; \
-	docker exec $(MAIN_CONTAINER) sed -i "s/database_$(PROJECT_NAME)/database_$$new_project_name/g" /app/docker-compose.yml
-	docker-compose down
+	docker exec $(MAIN_CONTAINER) sed -i "s/database_$(PROJECT_NAME)/database_$$new_project_name/g" /app/docker-compose.yml ; \
+	docker exec $(MAIN_CONTAINER) sed -i "s/database_$(PROJECT_NAME)/database_$$new_project_name/g" /app/.env ; \
+	docker exec $(MAIN_CONTAINER) sed -i "s/your_db_name/$$new_project_name/g" /app/.env
+	docker container stop backend_$(PROJECT_NAME)
+	docker container stop database_$(PROJECT_NAME)
 	docker-compose up --build -d
 	@echo "done!"
 

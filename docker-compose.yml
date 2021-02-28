@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
 
-    backend:
+    backend_base:
         container_name: backend_base
         build:
             context: .
@@ -14,9 +14,9 @@ services:
         volumes:
             - .:/app
         depends_on:
-            - database
+            - database_base
 
-    database:
+    database_base:
         container_name: database_base
         image: postgres:12
         ports:
